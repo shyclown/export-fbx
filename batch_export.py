@@ -100,13 +100,14 @@ class Batch_FBX_Export(bpy.types.Operator, ExportHelper):
             name="Selection Only",
             description="Export selected objects only",
             default=True,
-            )
+            ) # type: ignore
 
     use_mesh_modifiers_setting: BoolProperty(
             name="Apply Modifiers",
             description="Apply modifiers (preview resolution)",
             default=True,
-            )
+            ) # type: ignore
+
     axis_forward_setting: EnumProperty(
             name="Forward",
             items=(('X', "X Forward", ""),
@@ -117,7 +118,8 @@ class Batch_FBX_Export(bpy.types.Operator, ExportHelper):
                    ('-Z', "-Z Forward", ""),
                    ),
             default='-Z',
-            )
+            ) # type: ignore
+
     axis_up_setting: EnumProperty(
             name="Up",
             items=(('X', "X Up", ""),
@@ -128,12 +130,14 @@ class Batch_FBX_Export(bpy.types.Operator, ExportHelper):
                    ('-Z', "-Z Up", ""),
                    ),
             default='Y',
-            )
+            ) # type: ignore
+
     global_scale_setting: FloatProperty(
             name="Scale",
             min=0.01, max=1000.0,
             default=1.0,
-            )
+            ) # type: ignore
+
 
     def execute(self, context):      
 
@@ -155,6 +159,7 @@ class Batch_FBX_Export(bpy.types.Operator, ExportHelper):
             item.select_set(True)
             if item.type == 'MESH':
                 
+                # Apply correct rotation
                 fix_object(item)
                 
                 file_path = os.path.join(folder_path, "{}.fbx".format(item.name))
@@ -201,6 +206,8 @@ class Batch_FBX_Export(bpy.types.Operator, ExportHelper):
         # restore viewport selection
         for ob in viewport_selection:
             ob.select_set(True)
+
+        # TODO: Reset rotation after done
 
         return {'FINISHED'}
 
