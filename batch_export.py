@@ -18,7 +18,7 @@
 # <pep8 compliant>
 
 bl_info = {
-    "name": "Batch export FBX files",
+    "name": "New Batch export FBX files",
     "author": "brockmann",
     "version": (0, 1, 0),
     "blender": (2, 80, 0),
@@ -159,10 +159,29 @@ class Batch_FBX_Export(bpy.types.Operator, ExportHelper):
             item.select_set(True)
             if item.type == 'MESH':
                 
-                # Apply correct rotation
-                fix_object(item)
+                name = item.name
                 
-                file_path = os.path.join(folder_path, "{}.fbx".format(item.name))
+                # Duplicate the selected object 
+                bpy.context.view_layer.objects.active = item 
+                bpy.ops.object.duplicate() 
+                duplicate_object = bpy.context.view_layer.objects.active
+                
+                # Print the name of the duplicated object for confirmation 
+                print(f"Duplicated object: {duplicate_object.name}") 
+                # Ensure the duplicated object is selected 
+                duplicate_object.select_set(True)
+                
+                # Apply modifiers
+                if hasattr(duplicate_object, "modifiers"):
+                    for modifier in duplicate_object.modifiers: 
+                        print(f"Object: {bpy.context.object.name}")
+                        print(f"Applying modifier: {modifier.type}")
+                        bpy.ops.object.modifier_apply(modifier=modifier.name)
+                    
+                # Apply correct rotation
+                fix_object(duplicate_object)
+                
+                file_path = os.path.join(folder_path, "{}.fbx".format(name))
 
                 # FBX settings
                 bpy.ops.export_scene.fbx(
@@ -200,8 +219,16 @@ class Batch_FBX_Export(bpy.types.Operator, ExportHelper):
                         axis_forward=self.axis_forward_setting, 
                         axis_up=self.axis_up_setting
                         )
-
-            item.select_set(False)
+                        
+   
+                # Delete the selected object 
+                bpy.ops.object.delete()
+         
+                #item.select_set(False)
+                
+                # Apply the original rotation to the object
+                # apply_rotation(item)
+            
 
         # restore viewport selection
         for ob in viewport_selection:
